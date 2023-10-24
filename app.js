@@ -20,7 +20,7 @@ app.use(
 app.use(cookieParser());
 
 // morgan - log info on server related to accessed path - (can use different options - dev,combined,common etc)
-app.use(morgan('dev'));
+app.use(morgan("dev"));
 
 // route for checking - parse the token
 app.use("/ping", (req, res) => {
