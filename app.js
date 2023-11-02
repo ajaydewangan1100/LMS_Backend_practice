@@ -27,10 +27,10 @@ app.use("/ping", (req, res) => {
   res.send("pong - 2");
 });
 
-// routes for 3 modules - user, course,
+// routes for 3 modules - user, course, payment related
 //
 
-// unknown route handling
+// unknown route handling - which is not handled by upper route options
 app.all("*", (req, res) => {
   res.status(400).send("OOPS!! 404 page not found!");
 });

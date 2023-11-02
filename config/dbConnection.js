@@ -1,17 +1,17 @@
 import mongoose from "mongoose";
 
 // this setting of mongoose will tell mongoose to not use strictquery - means if any information asked by route and it is not exist under DB then it doesn't give error
-// mongoose.set("strictQuery", false);
+mongoose.set("strictQuery", false);
 
 const connectionToDB = async () => {
-  console.log("first");
+  console.log("Running DB connection");
   try {
     const { connection } = await mongoose.connect(
-      process.env.MONGO_URI || "mongod://127.0.0.1:27017/lms"
+      process.env.MONGO_URI || "mongodb://127.0.0.1:27017/lms"
     );
 
     if (connection) {
-      console.log("Connected to DB: ${connection.host}");
+      console.log(`Connected to DB: ${connection.host}`);
     }
   } catch (err) {
     console.log(err);
