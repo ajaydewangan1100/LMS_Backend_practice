@@ -1,5 +1,5 @@
-import AppError from "../utils/error.util";
-import User from "../models/user.model";
+import AppError from "../utils/error.util.js";
+import User from "../models/user.model.js";
 
 // defining cookieOption for use when we store cookie
 const cookieOption = {
@@ -60,10 +60,60 @@ const register = async (req, res, next) => {
 };
 
 // User Login
-const login = (req, res) => {};
+const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    // checking required fields
+    if (!email || !password) {
+      return next(new AppError("All fields are reqired", 400));
+    }
+
+    // find user under DB
+    const user = await User.findOne({ email }).select("+password");
+
+    if (!user) {
+      return next(new AppError("Account not exist", 400));
+    }
+
+    // compare password
+    if (!user.comparePassword(password)) {
+      return next(new AppError("Wrong password", 400));
+    }
+
+    // geenrate cookie
+    const token = await user.generateJWTToken();
+
+    // set cookie
+    res.cookie("token", token, cookieOption);
+
+    // flush password
+    user.password = undefined;
+
+    // send res to user
+    res.status(200).json({
+      success: true,
+      message: "User loggedin successfully",
+      user,
+    });
+  } catch (e) {
+    return next(new AppError(e.message, 500));
+  }
+};
 
 // User Logout
-const logout = (req, res) => {};
+const logout = (req, res) => {
+  res.cookie("token", null, {
+    secre: true,
+    maxAge: 0,
+    httpOnly: true,
+  });
+
+  res.status(200).json({
+    success: true,
+    message: "User logged out successfully",
+  });
+};
 
 // User profile getting
 const getProfile = (req, res) => {};

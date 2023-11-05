@@ -89,4 +89,14 @@ router.get("/me", getProfile);
 
 - Store token on users browser - *JWT*, *flush the password* and then send successfull res to user with user details
 
+#### Login -> Login controller for user
+
+- Check the required fields exist or not, then check user exist or not under DB, 
+
+- check passwaord is correct matching with user password - using comparepassword method of user
+
+- Store cookies on browser and send res- 200 to user 
+
+#### Logout - logout controller for user
+
 - 
