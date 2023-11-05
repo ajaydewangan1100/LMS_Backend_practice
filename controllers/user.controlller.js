@@ -102,21 +102,40 @@ const login = async (req, res) => {
 };
 
 // User Logout
-const logout = (req, res) => {
-  res.cookie("token", null, {
-    secre: true,
-    maxAge: 0,
-    httpOnly: true,
-  });
+const  logout = (req, res) => {
+  try {
+    res.cookie("token", null, {
+      secre: true,
+      maxAge: 0,
+      httpOnly: true,
+    });
 
-  res.status(200).json({
-    success: true,
-    message: "User logged out successfully",
-  });
+    res.status(200).json({
+      success: true,
+      message: "User logged out successfully",
+    });
+  } catch (e) {
+    return next(new AppError("Failed to logout, try again", 400));
+  }
 };
 
 // User profile getting
-const getProfile = (req, res) => {};
+const getProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // find user under DB          
+    const user = await User.findOne({ userId });
+
+    res.status(200).json({
+      success: true,
+      message: "User details",
+      user,
+    });
+  } catch (e) {
+    return next(new AppError("Failed to fetch user details", 500));
+  }
+};
 
 //
 // Export all user controllers

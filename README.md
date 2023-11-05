@@ -99,4 +99,15 @@ router.get("/me", getProfile);
 
 #### Logout - logout controller for user
 
-- 
+- set cookie null and set cookieOption- maxAge = 0
+
+- send res 200 to user
+
+#### getUser - getting user details
+
+- middleware - isLoggedIn created for check user loggedIn or not using cookies - `[isLoggedIn - middleware](middlewares/auth.middleware.js)`
+
+- middle ware gives err to user or find user based on cookie data then run next() ,getUser method
+
+- if not error send reponce to user with user data
+
