@@ -1,5 +1,6 @@
 import AppError from "../utils/error.util.js";
 import User from "../models/user.model.js";
+import cloudinary from "cloudinary";
 
 // defining cookieOption for use when we store cookie
 const cookieOption = {
@@ -11,10 +12,12 @@ const cookieOption = {
 // User register
 const register = async (req, res, next) => {
   const { fullName, email, password } = req.body;
+  console.log(req.body);
+  console.log(fullName, email, password);
 
   if (!fullName || !email || !password) {
     // next is used it will let the error into a middleware which is defined under app.js, and that middleware can handle all error which we are sending as res to user
-    return next(new AppError("All fields are required", 400));
+    return next(new AppError("All fields are required!", 400));
   }
 
   const userExists = await User.findOne({ email });
@@ -39,7 +42,30 @@ const register = async (req, res, next) => {
     );
   }
 
-  // TODO: file upload - avatar image
+  // TODO: file upload - avatar image --> Done here ---------------------------------------->
+
+  if (req.file) {
+    console.log("file ---> ", req.file);
+    try {
+      const result = await cloudinary.v2.uploader.upload(req.file.path, {
+        folder: "lms",
+        width: 250,
+        height: 250,
+        gravity: "faces",
+        crop: "fill",
+      });
+
+      if (result) {
+        user.avatar.public_id = result.public_id;
+        user.avatar.secure_url = result.secure_url;
+
+        // remove file from server
+        // fs.rm(`uploads/${req.file.filename}`);
+      }
+    } catch (e) {
+      return next(new AppError(e || "Error on avatar file upload", 500));
+    }
+  }
 
   await user.save();
 
@@ -84,11 +110,11 @@ const login = async (req, res) => {
     // geenrate cookie
     const token = await user.generateJWTToken();
 
-    // set cookie
-    res.cookie("token", token, cookieOption);
-
     // flush password
     user.password = undefined;
+
+    // set cookie
+    res.cookie("token", token, cookieOption);
 
     // send res to user
     res.status(200).json({
@@ -102,7 +128,7 @@ const login = async (req, res) => {
 };
 
 // User Logout
-const  logout = (req, res) => {
+const logout = (req, res) => {
   try {
     res.cookie("token", null, {
       secre: true,
@@ -124,7 +150,7 @@ const getProfile = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    // find user under DB          
+    // find user under DB
     const user = await User.findOne({ userId });
 
     res.status(200).json({

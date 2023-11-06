@@ -7,7 +7,7 @@ const userSchema = new Schema(
     fullName: {
       type: "String",
       required: [true, "Name is required"],
-      minLength: [4, "Name must be atleast 4 character"],
+      minLength: [4, "Name must be atleast 4 characters"],
       maxLength: [50, "Name should be less then 50 character"],
       lowercase: true,
       trim: true,
@@ -71,7 +71,7 @@ userSchema.methods = {
     );
   },
   comparePassword: async function (receivedPass) {
-    return bcrypt.compare(receivedPass, this.password);
+    return await bcrypt.compare(receivedPass, this.password);
   },
 };
 

@@ -10,6 +10,8 @@ const app = express();
 
 // for parse and read json
 app.use(express.json());
+// for decode data send through html form
+app.use(express.urlencoded());
 
 // cors policy defining
 app.use(
@@ -33,7 +35,6 @@ app.use("/ping", (req, res) => {
 // routes for 3 modules - user, course, payment related
 // User routes -
 app.use("/api/v1/user", userRoutes);
-
 
 // unknown route handling - which is not handled by upper route options
 app.all("*", (req, res) => {
