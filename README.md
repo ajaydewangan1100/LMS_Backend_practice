@@ -10,9 +10,25 @@
 
 - **nodemon** - autorun on save (as liveserver)
 
-- **morgan** - log info on server, related to accessed path - *https://www.npmjs.com/package/morgan*
+- **morgan** - log info on server, related to accessed path -> *https://www.npmjs.com/package/morgan*
 
 - **mongoose** - for connect to DB -> [dbConnection](config/dbConnection.js)
+
+- **dotenv** - for get variables defined on process level -> *https://www.npmjs.com/package/dotenv*
+
+- **cookie-parser** - with this we can use cookies stored on users browser -> *https://www.npmjs.com/package/cookie-parser*
+
+- **cors** - cross origin resource sharing -> *https://www.npmjs.com/package/cors*
+
+- **bcryptjs** - for encrypt password -> *https://www.npmjs.com/package/bcryptjs*
+
+- **jsonwebtoken** - for token generation and encryption -> *https://www.npmjs.com/package/jsonwebtoken*
+
+- **multer** - media processing service binary to actual media file -> *https://www.npmjs.com/package/multer*
+
+- **cloudinary** - media upload database server -> *https://www.npmjs.com/package/cloudinary*
+
+- **crypto** - for encryption (crypting reset password token) -> **
 
 ### 2. creating [server.js](server.js) -
 
@@ -81,21 +97,21 @@ router.get("/me", getProfile);
 
 - and that next() will go to next middlewares which is called in last under app.js, named errorMiddleware, and this will res user with error - [middlewares/error.middleware.js](middlewares/error.middleware.js)
 
-- *find in DB if same email already exits* res error to user
+- _find in DB if same email already exits_ res error to user
 
 - if not exist, register the user with details - res to user, if any error on user creation time
 
-- TODO - upload profile image file and save avatar URL with user details, and save the user again,
+- TODO - (Done) - upload profile image file and save avatar URL with user details, and save the user again, (get binary media file via multer process and save locally on server then upload image on cloudinary and get url for that image, update avatar details and save user again)
 
-- Store token on users browser - *JWT*, *flush the password* and then send successfull res to user with user details
+- Store token on users browser - _JWT_, _flush the password_ and then send successfull res to user with user details
 
 #### Login -> Login controller for user
 
-- Check the required fields exist or not, then check user exist or not under DB, 
+- Check the required fields exist or not, then check user exist or not under DB,
 
 - check passwaord is correct matching with user password - using comparepassword method of user
 
-- Store cookies on browser and send res- 200 to user 
+- Store cookies on browser and send res- 200 to user
 
 #### Logout - logout controller for user
 
@@ -111,3 +127,6 @@ router.get("/me", getProfile);
 
 - if not error send reponce to user with user data
 
+#### resetPassword - resetting user password
+
+-

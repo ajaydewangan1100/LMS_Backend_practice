@@ -1,6 +1,8 @@
 import AppError from "../utils/error.util.js";
 import User from "../models/user.model.js";
 import cloudinary from "cloudinary";
+import fs from "fs/promises";
+import sendEmail from "../utils/sendEmail.js";
 
 // defining cookieOption for use when we store cookie
 const cookieOption = {
@@ -45,7 +47,7 @@ const register = async (req, res, next) => {
   // TODO: file upload - avatar image --> Done here ---------------------------------------->
 
   if (req.file) {
-    console.log("file ---> ", req.file);
+    // console.log("file ---> ", req.file);
     try {
       const result = await cloudinary.v2.uploader.upload(req.file.path, {
         folder: "lms",
@@ -60,9 +62,11 @@ const register = async (req, res, next) => {
         user.avatar.secure_url = result.secure_url;
 
         // remove file from server
-        // fs.rm(`uploads/${req.file.filename}`);
+        fs.rm(`uploads/${req.file.filename}`);
       }
     } catch (e) {
+      // remove file from server
+      fs.rm(`uploads/${req.file.filename}`);
       return next(new AppError(e || "Error on avatar file upload", 500));
     }
   }
@@ -163,6 +167,48 @@ const getProfile = async (req, res) => {
   }
 };
 
+// forgot Password controller
+const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return next(new AppError("Email is required", 400));
+  }
+
+  const user = User.findOne({ email });
+
+  if (!user) {
+    return next(new AppError("Email not registered", 400));
+  }
+
+  const resetToken = await user.generatePasswordResetToken(); // function defined under user model
+
+  await user.save();
+
+  const resetPasswordURL = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+
+  const subject = 'Reset Password';
+  const message = `You can reset your password by clicking <a href=${resetPasswordURL} target="_blank">Reset your password</a>\nIf the above link does not work for some reason then copy paste this link in new tab ${resetPasswordURL}.\n If you have not requested this, kindly ignore.`;
+
+  try {
+    await sendEmail(email, subject, message);
+
+    res.status(200).json({
+      success: true,
+      message: `Reset password token has been sent to ${email} successfully`,
+    });
+  } catch (e) {
+    user.forgotPasswordToken = undefined;
+    user.forgotPasswordExpiry = undefined;
+    await user.save();
+
+    return next(new AppError(e.message || "Internal error, try again", 400));
+  }
+};
+
+// reset password controller
+const resetPassword = () => {};
+
 //
 // Export all user controllers
-export { register, login, logout, getProfile };
+export { register, login, logout, getProfile, forgotPassword, resetPassword };
