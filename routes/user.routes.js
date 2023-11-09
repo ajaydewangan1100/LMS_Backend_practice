@@ -6,6 +6,8 @@ import {
   register,
   forgotPassword,
   resetPassword,
+  changePassword,
+  updateUser,
 } from "../controllers/user.controlller.js";
 import { isLoggedin } from "../middlewares/auth.middleware.js";
 import upload from "../middlewares/multer.middleware.js";
@@ -16,7 +18,8 @@ router.post("/register", upload.single("avatar"), register); // middleware used 
 router.post("/login", login);
 router.get("/logout", logout);
 router.get("/me", isLoggedin, getProfile);
-router.post("/forgot-password", forgotPassword);
-router.post("/reset-password", resetPassword);
+router.post("/forgotpassword", forgotPassword);
+router.post("/resetpassword/:resetToken", resetPassword);
+router.post("/changepassword", isLoggedin, changePassword);
 
 export default router;

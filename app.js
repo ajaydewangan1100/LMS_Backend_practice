@@ -10,8 +10,8 @@ const app = express();
 
 // for parse and read json
 app.use(express.json());
-// for decode data send through html form
-app.use(express.urlencoded());
+// get query params from url and parsing like things
+app.use(express.urlencoded({ extended: true }));
 
 // cors policy defining
 app.use(

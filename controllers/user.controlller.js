@@ -3,6 +3,7 @@ import User from "../models/user.model.js";
 import cloudinary from "cloudinary";
 import fs from "fs/promises";
 import sendEmail from "../utils/sendEmail.js";
+import crypto from "crypto";
 
 // defining cookieOption for use when we store cookie
 const cookieOption = {
@@ -14,8 +15,8 @@ const cookieOption = {
 // User register
 const register = async (req, res, next) => {
   const { fullName, email, password } = req.body;
-  console.log(req.body);
-  console.log(fullName, email, password);
+  // console.log(req.body);
+  // console.log(fullName, email, password);
 
   if (!fullName || !email || !password) {
     // next is used it will let the error into a middleware which is defined under app.js, and that middleware can handle all error which we are sending as res to user
@@ -168,14 +169,14 @@ const getProfile = async (req, res) => {
 };
 
 // forgot Password controller
-const forgotPassword = async (req, res) => {
+const forgotPassword = async (req, res, next) => {
   const { email } = req.body;
 
   if (!email) {
     return next(new AppError("Email is required", 400));
   }
 
-  const user = User.findOne({ email });
+  const user = await User.findOne({ email });
 
   if (!user) {
     return next(new AppError("Email not registered", 400));
@@ -185,10 +186,10 @@ const forgotPassword = async (req, res) => {
 
   await user.save();
 
-  const resetPasswordURL = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
+  const resetPasswordURL = `${process.env.FRONTEND_URL}/resetpassword/${resetToken}`;
 
-  const subject = 'Reset Password';
-  const message = `You can reset your password by clicking <a href=${resetPasswordURL} target="_blank">Reset your password</a>\nIf the above link does not work for some reason then copy paste this link in new tab ${resetPasswordURL}.\n If you have not requested this, kindly ignore.`;
+  const subject = "Reset Password";
+  const message = `You can reset your password by clicking <a href=${resetPasswordURL} target="_blank"> Reset your password</a> \n If the above link does not work for some reason then copy paste this link in new tab ${resetPasswordURL}. \n If you have not requested this, kindly ignore.`;
 
   try {
     await sendEmail(email, subject, message);
@@ -207,8 +208,80 @@ const forgotPassword = async (req, res) => {
 };
 
 // reset password controller
-const resetPassword = () => {};
+const resetPassword = async (req, res, next) => {
+  const { resetToken } = req.params;
+
+  const { password } = req.body;
+
+  const forgotPasswordToken = crypto
+    .createHash("sha256")
+    .update(resetToken)
+    .digest("hex");
+
+  const user = await User.findOne({
+    forgotPasswordToken,
+    forgotPasswordExpiry: { $gt: Date.now() },
+  });
+
+  if (!user) {
+    return next(new AppError("Token is invalid or expired", 400));
+  }
+
+  user.password = password;
+  user.forgotPasswordToken = undefined;
+  user.forgotPasswordExpiry = undefined;
+
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Password updated successfully",
+  });
+};
+
+// changing the password if old password already know
+const changePassword = async (req, res, next) => {
+  const { oldPassword, newPassword } = req.body;
+
+  const { id } = req.user;
+
+  if (!oldPassword || !newPassword) {
+    return next(new AppError("All fields are mendatory", 400));
+  }
+
+  const user = await User.findById(id).select("+password");
+
+  if (!user) {
+    return next(new AppError("User doesn't exist", 400));
+  }
+
+  const isPasswordValid = user.comparePassword(oldPassword);
+
+  if (!isPasswordValid) {
+    return next(new AppError("Invalid old password", 400));
+  }
+
+  await user.save();
+
+  user.password = undefined;
+
+  res.status(200).json({
+    success: true,
+    message: "Password changes successfully",
+  });
+};
+
+
 
 //
 // Export all user controllers
-export { register, login, logout, getProfile, forgotPassword, resetPassword };
+export {
+  register,
+  login,
+  logout,
+  getProfile,
+  forgotPassword,
+  resetPassword,
+  changePassword,
+  updateUser,
+};
