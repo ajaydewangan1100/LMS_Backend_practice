@@ -5,6 +5,8 @@ import morgan from "morgan";
 // user route import
 import userRoutes from "./routes/user.routes.js";
 import errorMiddleware from "./middlewares/error.middleware.js";
+// Courses routes
+import coursesRoutes from "./routes/course.routes.js";
 
 const app = express();
 
@@ -35,6 +37,8 @@ app.use("/ping", (req, res) => {
 // routes for 3 modules - user, course, payment related
 // User routes -
 app.use("/api/v1/user", userRoutes);
+// Courses routes -
+app.use("/api/v1/courses", coursesRoutes);
 
 // unknown route handling - which is not handled by upper route options
 app.all("*", (req, res) => {
