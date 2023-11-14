@@ -59,10 +59,13 @@ const createCourse = async (req, res, next) => {
       description,
       category,
       createdBy,
+      thumbnail: {
+        public_id: "DUMMY",
+        secure_url: "DUMMY",
+      },
     });
 
     if (!course) {
-      fs.rm(`uploads/${req.file.pathname}`);
       return next(new AppError("Course could not be created", 500));
     }
 
@@ -76,7 +79,7 @@ const createCourse = async (req, res, next) => {
         course.thumbnail.secure_url = result.secure_url;
       }
 
-      fs.rm(`uploads/${req.file.pathname}`);
+      fs.rm(`uploads/${req.file.filename}`);
     }
 
     await course.save();
@@ -97,7 +100,42 @@ const createCourse = async (req, res, next) => {
 };
 
 // update course
-const updateCourse = async (req, res, next) => {};
+const updateCourse = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const course = await Course.findByIdAndUpdate(
+      id,
+      {
+        $set: req.body,
+      },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    console.log(course);
+    if (!course) {
+      return next(
+        new AppError(e.message || "No course found with given id", 400)
+      );
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Course updated succefully",
+      course,
+    });
+  } catch (e) {
+    return next(
+      new AppError(
+        e.message || "Some error occured while generating course",
+        500
+      )
+    );
+  }
+};
 
 // delete course
 const removeCourse = async (req, res, next) => {};
