@@ -138,7 +138,26 @@ const updateCourse = async (req, res, next) => {
 };
 
 // delete course
-const removeCourse = async (req, res, next) => {};
+const removeCourse = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const course = await Course.findByIdAndDelete(id);
+
+    if (!course) {
+      return next(new AppError("Course not found with given id", 500));
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Course deleted successfully",
+    });
+  } catch (e) {
+    return next(
+      new AppError(e.message || "Some error occured while deleting course", 500)
+    );
+  }
+};
 
 export {
   getAllCourses,
