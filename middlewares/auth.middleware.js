@@ -1,5 +1,6 @@
 import AppError from "../utils/error.util.js";
 import JWT from "jsonwebtoken";
+
 const isLoggedin = async (req, res, next) => {
   // get token from users browser
   const { token } = res.cookies;
@@ -18,4 +19,18 @@ const isLoggedin = async (req, res, next) => {
   next();
 };
 
-export { isLoggedin };
+const authorize =
+  (...roles) =>
+  async (req, res, next) => {
+    const currentUserRole = req.user.role;
+
+    if (!roles.includes(currentUserRole)) {
+      return next(
+        new AppError("You are not authorized to access this route", 403)
+      );
+    }
+
+    next();
+  };
+
+export { isLoggedin, authorize };
