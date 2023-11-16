@@ -19,7 +19,7 @@ const isLoggedin = async (req, res, next) => {
   next();
 };
 
-const authorize =
+const authorizedRoles =
   (...roles) =>
   async (req, res, next) => {
     const currentUserRole = req.user.role;
@@ -33,4 +33,4 @@ const authorize =
     next();
   };
 
-export { isLoggedin, authorize };
+export { isLoggedin, authorizedRoles };

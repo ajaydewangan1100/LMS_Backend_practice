@@ -14,12 +14,12 @@ const router = Router();
 router
   .route("/")
   .get(getAllCourses)
-  .post(upload.single("thumbnail"), createCourse);
+  .post(isLoggedin, upload.single("thumbnail"), createCourse);
 
 router
   .route("/:id")
   .get(isLoggedin, getLecturesByCourseId)
-  .put(updateCourse)
-  .delete(removeCourse);
+  .put(isLoggedin, updateCourse)
+  .delete(isLoggedin, removeCourse);
 
 export default router;
