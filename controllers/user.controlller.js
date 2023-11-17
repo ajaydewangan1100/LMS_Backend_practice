@@ -8,8 +8,8 @@ import crypto from "crypto";
 // defining cookieOption for use when we store cookie
 const cookieOption = {
   maxAge: 24 * 60 * 60 * 1000,
-  httpOnly: true,
-  secure: true,
+  // httpOnly: true,
+  // secure: true,
 };
 
 // User register
@@ -91,7 +91,7 @@ const register = async (req, res, next) => {
 };
 
 // User Login
-const login = async (req, res) => {
+const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
@@ -133,7 +133,7 @@ const login = async (req, res) => {
 };
 
 // User Logout
-const logout = (req, res) => {
+const logout = (req, res, next) => {
   try {
     res.cookie("token", null, {
       secre: true,
@@ -151,12 +151,16 @@ const logout = (req, res) => {
 };
 
 // User profile getting
-const getProfile = async (req, res) => {
+const getProfile = async (req, res, next) => {
   try {
     const userId = req.user.id;
 
     // find user under DB
-    const user = await User.findOne({ userId });
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return next(new AppError("User invalid, login again", 400));
+    }
 
     res.status(200).json({
       success: true,
@@ -272,7 +276,7 @@ const changePassword = async (req, res, next) => {
 };
 
 // Update user profile
-const updateUser = async (req, res) => {
+const updateUser = async (req, res, next) => {
   const { fullName } = req.body;
   const { id } = req.user.id;
 

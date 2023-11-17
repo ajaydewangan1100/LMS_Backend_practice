@@ -3,7 +3,7 @@ import JWT from "jsonwebtoken";
 
 const isLoggedin = async (req, res, next) => {
   // get token from users browser
-  const { token } = res.cookies;
+  const { token } = req.cookies;
 
   //   check token is there or not
   if (!token) {
@@ -12,7 +12,7 @@ const isLoggedin = async (req, res, next) => {
 
   const userDetails = await JWT.verify(token, process.env.JWT_SECRET);
 
-  //   if userdetails come - set it nder req
+  //   if userdetails come - set it under req
   req.user = userDetails;
 
   //   call next
