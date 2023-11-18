@@ -5,6 +5,7 @@ import {
   getLecturesByCourseId,
   removeCourse,
   updateCourse,
+  addLectureToCourseById,
 } from "../controllers/course.controller.js";
 import { authorizedRoles, isLoggedin } from "../middlewares/auth.middleware.js";
 import upload from "../middlewares/multer.middleware.js";
@@ -26,6 +27,11 @@ router
   .get(isLoggedin, getLecturesByCourseId)
   .put(isLoggedin, authorizedRoles("ADMIN"), updateCourse)
   .delete(isLoggedin, authorizedRoles("ADMIN"), removeCourse)
-  .post(isLoggedin, authorizedRoles("ADMIN"), addLectureToCourseById);
+  .post(
+    isLoggedin,
+    authorizedRoles("ADMIN"),
+    upload.single("lecture"),
+    addLectureToCourseById
+  );
 
 export default router;

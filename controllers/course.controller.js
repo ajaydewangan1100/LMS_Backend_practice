@@ -70,16 +70,20 @@ const createCourse = async (req, res, next) => {
     }
 
     if (req.file) {
-      const result = await cloudinary.v2.uploader.upload(req.file.path, {
-        folder: "lms",
-      });
+      try {
+        const result = await cloudinary.v2.uploader.upload(req.file.path, {
+          folder: "lms",
+        });
 
-      if (result) {
-        course.thumbnail.public_id = result.public_id;
-        course.thumbnail.secure_url = result.secure_url;
+        if (result) {
+          course.thumbnail.public_id = result.public_id;
+          course.thumbnail.secure_url = result.secure_url;
+        }
+
+        fs.rm(`uploads/${req.file.filename}`);
+      } catch (e) {
+        return next(new AppError(e.message || "Error on uploading media", 500));
       }
-
-      fs.rm(`uploads/${req.file.filename}`);
     }
 
     await course.save();
@@ -160,7 +164,66 @@ const removeCourse = async (req, res, next) => {
 };
 
 // add lectures on course by id
-const addLectureToCourseById = async (req, res, next) => {};
+const addLectureToCourseById = async (req, res, next) => {
+  try {
+    const { title, description } = req.body;
+
+    const { id } = req.params;
+
+    if (!title || !description) {
+      return next(new AppError("All filds requierd", 400));
+    }
+
+    const course = await Course.findById(id);
+
+    if (!course) {
+      return next(new AppError("Course does't exist with given id", 400));
+    }
+
+    const lectureData = {
+      title,
+      description,
+      lecture: {
+        public_id: "DUMMY",
+        secure_url: "DUMMY",
+      },
+    };
+
+    if (req.file) {
+      try {
+        const result = await cloudinary.v2.uploader.upload(req.file.path, {
+          folder: "lms",
+        });
+
+        if (result) {
+          lectureData.lecture.public_id = result.public_id;
+          lectureData.lecture.secure_url = result.secure_url;
+        }
+        console.log(lectureData);
+
+        fs.rm(`uploads/${req.file.filename}`);
+      } catch (e) {
+        return next(new AppError(e.message || "Error on uploading media", 500));
+      }
+    }
+
+    course.lectures.push(lectureData);
+
+    course.numberOfLectures = course.lectures.length;
+
+    await course.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Lecture successfully added to the course",
+      course,
+    });
+  } catch (e) {
+    return next(
+      new AppError(e.message || "Error on creating course lecture", 500)
+    );
+  }
+};
 
 export {
   getAllCourses,
