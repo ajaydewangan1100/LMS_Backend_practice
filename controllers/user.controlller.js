@@ -83,7 +83,7 @@ const register = async (req, res, next) => {
   // storing token on users browser
   res.cookie("token", token, cookieOption);
 
-  res.status(201).json({
+  res.status(200).json({
     successs: true,
     message: "User registered successfully",
     user,
