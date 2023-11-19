@@ -6,6 +6,7 @@ import {
   removeCourse,
   updateCourse,
   addLectureToCourseById,
+  deleteLectureToCourseById,
 } from "../controllers/course.controller.js";
 import { authorizedRoles, isLoggedin } from "../middlewares/auth.middleware.js";
 import upload from "../middlewares/multer.middleware.js";
@@ -33,5 +34,9 @@ router
     upload.single("lecture"),
     addLectureToCourseById
   );
+
+router
+  .route("/:id/:lectureId")
+  .delete(isLoggedin, authorizedRoles("ADMIN"), deleteLectureToCourseById);
 
 export default router;

@@ -146,7 +146,7 @@ const removeCourse = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const course = await Course.findByIdAndDelete(id);
+    // const course = await Course.findByIdAndDelete(id);
 
     if (!course) {
       return next(new AppError("Course not found with given id", 500));
@@ -171,7 +171,7 @@ const addLectureToCourseById = async (req, res, next) => {
     const { id } = req.params;
 
     if (!title || !description) {
-      return next(new AppError("All filds requierd", 400));
+      return next(new AppError("All fields requierd", 400));
     }
 
     const course = await Course.findById(id);
@@ -199,7 +199,6 @@ const addLectureToCourseById = async (req, res, next) => {
           lectureData.lecture.public_id = result.public_id;
           lectureData.lecture.secure_url = result.secure_url;
         }
-        console.log(lectureData);
 
         fs.rm(`uploads/${req.file.filename}`);
       } catch (e) {
@@ -225,6 +224,46 @@ const addLectureToCourseById = async (req, res, next) => {
   }
 };
 
+// delete lecture of any course
+const deleteLectureToCourseById = async (req, res, next) => {
+  try {
+    const { id, lectureId } = req.params;
+
+    // const lectureId = req.body.lectureId;
+
+    if (!lectureId) {
+      return next(new AppError("Lectures id requierd", 400));
+    }
+
+    const course = await Course.findById(id);
+
+    if (!course) {
+      return next(new AppError("Course does't exist with given id", 400));
+    }
+
+    const removedCourse = course.lectures.filter((lec) => lec._id == lectureId);
+
+    if (!removedCourse.length) {
+      return next(new AppError("Lecture id of given course is wrong", 400));
+    }
+
+    course.lectures = course.lectures.filter((lec) => lec._id != lectureId);
+    course.numberOfLectures -= 1;
+
+    await course.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Lecture deleted successfully",
+      course,
+    });
+  } catch (e) {
+    return next(
+      new AppError(e.message || "Error on creating course lecture", 500)
+    );
+  }
+};
+
 export {
   getAllCourses,
   getLecturesByCourseId,
@@ -232,4 +271,5 @@ export {
   updateCourse,
   removeCourse,
   addLectureToCourseById,
+  deleteLectureToCourseById,
 };
