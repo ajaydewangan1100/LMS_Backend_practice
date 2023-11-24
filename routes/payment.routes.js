@@ -2,9 +2,9 @@ import { Router } from "express";
 import {
   allPayments,
   buySubscription,
-  cancelSubscrition,
+  cancelSubscription,
   getRazorpayApiKey,
-  verifySubscrition,
+  verifySubscription,
 } from "../controllers/payment.controller.js";
 import { authorizedRoles, isLoggedin } from "../middlewares/auth.middleware.js";
 
@@ -14,9 +14,9 @@ router.route("/razorpay-key").get(isLoggedin, getRazorpayApiKey);
 
 router.route("/subscribe").post(isLoggedin, buySubscription);
 
-router.route("/verify").post(isLoggedin, verifySubscrition);
+router.route("/verify").post(isLoggedin, verifySubscription);
 
-router.route("/unsubscribe").post(isLoggedin, cancelSubscrition);
+router.route("/unsubscribe").post(isLoggedin, cancelSubscription);
 
 router.route("/").get(isLoggedin, authorizedRoles("ADMIN"), allPayments);
 
