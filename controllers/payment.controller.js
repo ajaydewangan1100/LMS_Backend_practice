@@ -1,3 +1,4 @@
+import subscriptions from "razorpay/dist/types/subscriptions.js";
 import User from "../models/user.model.js";
 import { razorpay } from "../server.js";
 import AppError from "../utils/error.util.js";
@@ -122,4 +123,26 @@ export const cancelSubscription = async (req, res, next) => {
   }
 };
 
-export const allPayments = async (req, res, next) => {};
+export const allPayments = async (req, res, next) => {
+  try {
+    const { count } = req.params;
+
+    const subscriptions = await razorpay.subscriptions.all({
+      count: count || 10,
+    });
+
+    if (!subscriptions) {
+      return next(
+        new AppError("Error on getting all payments, please try again", 500)
+      );
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "All payments",
+      subscriptions,
+    });
+  } catch (e) {
+    return next(new AppError(e.message, 500));
+  }
+};
