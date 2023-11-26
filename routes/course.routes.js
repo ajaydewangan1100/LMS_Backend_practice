@@ -8,7 +8,11 @@ import {
   addLectureToCourseById,
   deleteLectureToCourseById,
 } from "../controllers/course.controller.js";
-import { authorizedRoles, isLoggedin } from "../middlewares/auth.middleware.js";
+import {
+  authorizeSubscriber,
+  authorizedRoles,
+  isLoggedin,
+} from "../middlewares/auth.middleware.js";
 import upload from "../middlewares/multer.middleware.js";
 
 const router = Router();
@@ -25,7 +29,7 @@ router
 
 router
   .route("/:id")
-  .get(isLoggedin, getLecturesByCourseId)
+  .get(isLoggedin, authorizeSubscriber, getLecturesByCourseId)
   .put(isLoggedin, authorizedRoles("ADMIN"), updateCourse)
   .delete(isLoggedin, authorizedRoles("ADMIN"), removeCourse)
   .post(
