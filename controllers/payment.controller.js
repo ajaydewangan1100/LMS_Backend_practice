@@ -1,4 +1,4 @@
-import subscriptions from "razorpay/dist/types/subscriptions.js";
+// import subscription from "razorpay/dist/types/subscriptions.js";
 import User from "../models/user.model.js";
 import { razorpay } from "../server.js";
 import AppError from "../utils/error.util.js";
@@ -6,7 +6,7 @@ import AppError from "../utils/error.util.js";
 export const getRazorpayApiKey = async (req, res, next) => {
   try {
     // first we need to return razorpay key to client
-    req.status(200).josn({
+    res.status(200).json({
       success: true,
       message: "Razorpay API Key",
       key: process.env.RAZORPAY_KEY_ID,
@@ -32,7 +32,7 @@ export const buySubscription = async (req, res, next) => {
 
     const subscription = await razorpay.subscription.create({
       plan_id: process.env.RAZORPAY_PLAN_ID,
-      customar_notify: 1,
+      customer_notify: 1,
     });
 
     user.subscription.id = subscription.id;
@@ -118,6 +118,11 @@ export const cancelSubscription = async (req, res, next) => {
     user.subscription.status = subscription.status;
 
     await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Subscription canceled successfully",
+    });
   } catch (e) {
     return next(new AppError(e.message, 500));
   }
@@ -125,7 +130,7 @@ export const cancelSubscription = async (req, res, next) => {
 
 export const allPayments = async (req, res, next) => {
   try {
-    const { count } = req.params;
+    const { count } = req.query;
 
     const subscriptions = await razorpay.subscriptions.all({
       count: count || 10,
