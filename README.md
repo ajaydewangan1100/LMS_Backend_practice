@@ -28,7 +28,9 @@
 
 - **cloudinary** - media upload database server -> *https://www.npmjs.com/package/cloudinary*
 
-- **crypto** - for encryption (crypting reset password token) -> **
+- **crypto** - for encryption (crypting reset password token) -> *https://www.npmjs.com/package/crypto*
+
+- **razorpay** - for payment interface - *https://www.npmjs.com/package/razorpay*, *https://dashboard.razorpay.com/app/subscriptions*
 
 ### 2. creating [server.js](server.js) -
 
@@ -127,6 +129,28 @@ router.get("/me", getProfile);
 
 - if not error send reponce to user with user data
 
+#### forgotPassword - forgot password request accept
+
+- get mail from user, find user by mail on DB and set store a reset token on DB with that user
+
+- send a reset URL to user on mail, if any error - store undefined on token and expiry at user level
+
 #### resetPassword - resetting user password
 
--
+- get reset token from params which sent at forgotPassword request, and get new password which user have sent
+
+- get user based on that reset token, check users available and expiry time, ig perfect update new password
+
+#### changePassword - if user already know old password
+
+- get old and new pass from req, find user by id on DB
+
+- check old password, if correct update new password and save
+
+#### updateUser - update user details
+
+- get things, which user want to update, get user by id from DB
+
+- upload details , and if avatar also given upload it on cloudinary and save user
+
+###
