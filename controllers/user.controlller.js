@@ -84,7 +84,7 @@ const register = async (req, res, next) => {
   res.cookie("token", token, cookieOption);
 
   res.status(200).json({
-    successs: true,
+    success: true,
     message: "User registered successfully",
     user,
   });

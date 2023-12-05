@@ -10,6 +10,10 @@ import coursesRoutes from "./routes/course.routes.js";
 // Payment routes
 import paymentRoutes from "./routes/payment.routes.js";
 
+import { config } from "dotenv";
+
+config();
+
 const app = express();
 
 // for parse and read json
@@ -39,6 +43,7 @@ app.use("/ping", (req, res) => {
 // routes for 3 modules - user, course, payment related
 // User routes -
 app.use("/api/v1/user", userRoutes);
+
 // Courses routes -
 app.use("/api/v1/courses", coursesRoutes);
 
