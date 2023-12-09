@@ -92,44 +92,46 @@ const register = async (req, res, next) => {
 
 // User Login
 const login = async (req, res, next) => {
-  try {
-    const { email, password } = req.body;
+  const { email, password } = req.body;
 
-    // checking required fields
-    if (!email || !password) {
-      return next(new AppError("All fields are reqired", 400));
-    }
-
-    // find user under DB
-    const user = await User.findOne({ email }).select("+password");
-
-    if (!user) {
-      return next(new AppError("Account not exist", 400));
-    }
-
-    // compare password
-    if (!user.comparePassword(password)) {
-      return next(new AppError("Wrong password", 400));
-    }
-
-    // geenrate cookie
-    const token = await user.generateJWTToken();
-
-    // flush password
-    user.password = undefined;
-
-    // set cookie
-    res.cookie("token", token, cookieOption);
-
-    // send res to user
-    res.status(200).json({
-      success: true,
-      message: "User loggedin successfully",
-      user,
-    });
-  } catch (e) {
-    return next(new AppError(e.message, 500));
+  // checking required fields
+  if (!email || !password) {
+    return next(new AppError("All fields are reqired", 400));
   }
+
+  // find user under DB
+  const user = await User.findOne({ email }).select("+password");
+
+  if (!user) {
+    return next(new AppError("Account not exist", 400));
+  }
+
+  // compare password
+  const isPasswordMatch = await user.comparePassword(password);
+
+  if (!isPasswordMatch) {
+    return next(new AppError("Wrong password!!!", 400));
+  }
+
+  // geenrate cookie
+  const token = await user.generateJWTToken();
+
+  // flush password
+  user.password = undefined;
+
+  // set cookie
+  res.cookie("token", token, cookieOption);
+
+  // send res to user
+  res.status(200).json({
+    success: true,
+    message: "User loggedin successfully",
+    user,
+  });
+  // try {
+  // } catch (e) {
+  //   return next(new AppError(e.message, 500));
+  // }
 };
 
 // User Logout
