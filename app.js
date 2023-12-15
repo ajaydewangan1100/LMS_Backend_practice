@@ -2,13 +2,7 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import morgan from "morgan";
-// user route import
-import userRoutes from "./routes/user.routes.js";
 import errorMiddleware from "./middlewares/error.middleware.js";
-// Courses routes
-import coursesRoutes from "./routes/course.routes.js";
-// Payment routes
-import paymentRoutes from "./routes/payment.routes.js";
 
 import { config } from "dotenv";
 
@@ -40,15 +34,17 @@ app.use("/ping", (req, res) => {
   res.send("pong - 2");
 });
 
-// routes for 3 modules - user, course, payment related
-// User routes -
+// import all routes controllers - user/courses/payment/miscellaneous
+import userRoutes from "./routes/user.routes.js";
+import coursesRoutes from "./routes/course.routes.js";
+import paymentRoutes from "./routes/payment.routes.js";
+import miscRoutes from "./routes/miscellaneous.routes.js";
+
+// routes for 4 modules - user, course, payment related, miscellaneous
 app.use("/api/v1/user", userRoutes);
-
-// Courses routes -
 app.use("/api/v1/courses", coursesRoutes);
-
-// Payments routes
 app.use("/api/v1/payments", paymentRoutes);
+app.use("/api/v1", miscRoutes);
 
 // unknown route handling - which is not handled by upper route options
 app.all("*", (req, res) => {
