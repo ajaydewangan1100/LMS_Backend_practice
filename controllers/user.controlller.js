@@ -281,9 +281,9 @@ const changePassword = async (req, res, next) => {
 // Update user profile
 const updateUser = async (req, res, next) => {
   const { fullName } = req.body;
-  const { id } = req.user.id;
+  const { id } = req.user;
 
-  const user = await User.findOne(id);
+  const user = await User.findById(id);
 
   if (!user) {
     return next(new AppError("User does not exist", 400));
