@@ -1,7 +1,9 @@
+import crypto from "crypto";
 // import subscription from "razorpay/dist/types/subscriptions.js";
 import User from "../models/user.model.js";
 import { razorpay } from "../server.js";
 import AppError from "../utils/error.util.js";
+import Payment from "../models/payment.model.js"
 
 export const getRazorpayApiKey = async (req, res, next) => {
   try {
@@ -30,9 +32,10 @@ export const buySubscription = async (req, res, next) => {
       return next(new AppError("Admin cannot purchase a subscription", 400));
     }
 
-    const subscription = await razorpay.subscription.create({
+    const subscription = await razorpay.subscriptions.create({
       plan_id: process.env.RAZORPAY_PLAN_ID,
-      customer_notify: 1,
+      customer_notify: 1, // 1 means razorpay will handle notifying the customer, 0 means we will not notify the customer
+      total_count: 12, // 12 means it will charge every month for a 1-year sub.
     });
 
     user.subscription.id = subscription.id;
