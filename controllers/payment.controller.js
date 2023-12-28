@@ -3,7 +3,7 @@ import crypto from "crypto";
 import User from "../models/user.model.js";
 import { razorpay } from "../server.js";
 import AppError from "../utils/error.util.js";
-import Payment from "../models/payment.model.js"
+import Payment from "../models/payment.model.js";
 
 export const getRazorpayApiKey = async (req, res, next) => {
   try {
@@ -114,9 +114,7 @@ export const cancelSubscription = async (req, res, next) => {
 
     const subscriptionId = user.subscription.id;
 
-    const subscription = await razorpay.subscription.cancel({
-      subscriptionId,
-    });
+    const subscription = await razorpay.subscriptions.cancel(subscriptionId);
 
     user.subscription.status = subscription.status;
 
