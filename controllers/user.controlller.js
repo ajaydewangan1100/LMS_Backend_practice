@@ -137,7 +137,6 @@ const login = async (req, res, next) => {
 // User Logout
 const logout = (_req, res, next) => {
   try {
-    console.log("under back");
     res.cookie("token", null, {
       secure: true,
       maxAge: 0,
