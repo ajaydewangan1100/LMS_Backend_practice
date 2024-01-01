@@ -146,13 +146,11 @@ const removeCourse = async (req, res, next) => {
   try {
     const { id } = req.params;
 
-    const course = await Course.findById(id);
+    const course = await Course.findByIdAndDelete(id);
 
     if (!course) {
-      return next(new AppError("Course with given id does not exist.", 404));
+      return next(new AppError("Course not found with given id", 500));
     }
-
-    await course.remove();
 
     res.status(200).json({
       success: true,
