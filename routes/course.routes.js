@@ -25,7 +25,8 @@ router
     authorizedRoles("ADMIN"),
     upload.single("thumbnail"),
     createCourse
-  );
+  )
+  .delete(isLoggedin, authorizedRoles("ADMIN"), deleteLectureToCourseById);
 
 router
   .route("/:id")
@@ -39,8 +40,8 @@ router
     addLectureToCourseById
   );
 
-router
-  .route("/:id/:lectureId")
-  .delete(isLoggedin, authorizedRoles("ADMIN"), deleteLectureToCourseById);
+// router
+//   .route("/:id/:lectureId")
+//   .delete(isLoggedin, authorizedRoles("ADMIN"), deleteLectureToCourseById);
 
 export default router;

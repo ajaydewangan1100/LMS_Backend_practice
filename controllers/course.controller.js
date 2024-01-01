@@ -229,15 +229,21 @@ const addLectureToCourseById = async (req, res, next) => {
 // delete lecture of any course
 const deleteLectureToCourseById = async (req, res, next) => {
   try {
-    const { id, lectureId } = req.params;
+    // const { id, lectureId } = req.params;
+    const { courseId, lectureId } = req.query;
+    console.log(courseId, lectureId);
 
     // const lectureId = req.body.lectureId;
+
+    if (!courseId) {
+      return next(new AppError("Course id requierd", 400));
+    }
 
     if (!lectureId) {
       return next(new AppError("Lectures id requierd", 400));
     }
 
-    const course = await Course.findById(id);
+    const course = await Course.findById(courseId);
 
     if (!course) {
       return next(new AppError("Course does't exist with given id", 400));
